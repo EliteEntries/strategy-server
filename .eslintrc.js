@@ -11,7 +11,6 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
-    quotes: ['warn', 'double'],
     'import/no-unresolved': 0,
     indent: ['error', 2]
   }

@@ -9,7 +9,7 @@ import * as firebaseconfig from "../util/elitefirebase.json"
 config();
 
 // initialize firebase
-const firebaseApp = initializeApp({ 
+initializeApp({ 
     credential: credential.cert(
         firebaseconfig as ServiceAccount
     ),
@@ -22,16 +22,16 @@ let Strategies: any = {};
     //get users
     const users = await db.collection("strategies").get();
 
-    users.forEach(async (user: { id: string; }) => {
+    users.forEach(async (user: { id: string }) => {
         //get strategies
         const strategies = await db.collection(`users/${user.id}/strategies`).get();
-
+        //start strategies
         strategies.forEach(async (strategy: { id: string; }) => { 
             db.doc(`users/${user.id}/strategies/${strategy.id}`)
                 .onSnapshot(async (doc: { data: () => any; }) => {
                     if (Strategies[strategy.id]) {
-                        Strategies[strategy.id].kill("SIGINT")
-                        delete Strategies[strategy.id]
+                        Strategies[strategy.id].kill("SIGINT");
+                        delete Strategies[strategy.id];
                     }
                     const data = doc.data();
                     if (data?.active) startStrategy(data, true);

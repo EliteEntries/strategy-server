@@ -1,8 +1,9 @@
 import { config } from "dotenv";
-import { initializeApp } from "firebase-admin/app";
+import { ServiceAccount, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { credential } from "firebase-admin";
 import { fork } from "child_process";
+import * as firebaseconfig from "../util/elitefirebase.json"
 
 //initialize dotenv
 config();
@@ -10,7 +11,7 @@ config();
 // initialize firebase
 const firebaseApp = initializeApp({ 
     credential: credential.cert(
-        JSON.parse(process.env.FIREBASE_CONFIG as string)
+        firebaseconfig as ServiceAccount
     ),
 });
 const db = getFirestore();
@@ -21,22 +22,24 @@ let Strategies: any = {};
     //get users
     const users = await db.collection("strategies").get();
 
-    users.forEach(async (user) => {
+    users.forEach(async (user: { id: string; }) => {
         //get strategies
         const strategies = await db.collection(`users/${user.id}/strategies`).get();
 
-        strategies.forEach(async (strategy) => { 
-            db.doc(`users/${user.id}/strategies/${strategy.id}`).onSnapshot(async (doc) => {
-                if (Strategies[strategy.id]) {
-                    Strategies[strategy.id].kill("SIGINT")
-                    delete Strategies[strategy.id]
-                }
-                const data = doc.data();
-                if (data?.active) startStrategy(data, true);
-            });
+        strategies.forEach(async (strategy: { id: string; }) => { 
+            db.doc(`users/${user.id}/strategies/${strategy.id}`)
+                .onSnapshot(async (doc: { data: () => any; }) => {
+                    if (Strategies[strategy.id]) {
+                        Strategies[strategy.id].kill("SIGINT")
+                        delete Strategies[strategy.id]
+                    }
+                    const data = doc.data();
+                    if (data?.active) startStrategy(data, true);
+                });
         });
 
     });
+    console.log("Strategies started");
 })()
 
 async function startStrategy(data: any,  init: boolean)  {

@@ -1,5 +1,8 @@
 {
   "include": [
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "src",
+    "lib",
+    "algorithms"
   ]
 }

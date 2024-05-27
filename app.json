@@ -1,0 +1,8 @@
+{
+    "apps": [
+        {
+            "name": "tradebot",
+            "script": "dist/index.js"
+        }
+    ]
+}

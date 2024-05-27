@@ -1,0 +1,22 @@
+{
+    "name": "tradebot",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "ts-node index"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "elite-entries": "file:../../modules/elite-entries/elite-entries-0.0.1.tgz",
+        "node-cmd": "^5.0.0",
+        "redbtn": "file:../../modules/redbtn/redbtn-0.0.1.tgz",
+        "redis": "^4.6.14",
+        "typescript": "^5.4.5"
+    },
+    "devDependencies": {
+        "@types/node": "^20.12.12"
+    }
+}

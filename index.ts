@@ -10,6 +10,7 @@ const redis = createClient({
 })
 
 ;(async () => {
+    console.log('\x1b[31m----------------- Starting System -----------------')
     await redis.connect()
 
     const dipbuyerData = await redis.get('dipbuyer')
@@ -35,41 +36,54 @@ const redis = createClient({
             params: {
                 symbols: symbols,
                 threshold: threshold,
+                sell: true
             }
         }],
         actions: [{
             package: './dist/connectors/elite-entries',
-            action: 'buy',
+            action: 'trade',
             condition: 't',
             params: {
                 notional: 100,
                 symbols: symbols,
             }
+        },{
+            package: './dist/connectors/elite-entries',
+            action: 'trade',
+            condition: 't',
+            params: {
+                notional: 50,
+                symbols: symbols,
+                side: 'sell',
+                priceMulti: 1.01
+            }
         }],
     })
 
     const time = new Date()
-    console.log(time.toLocaleString())
     const isPassed10AM: boolean = time.getHours() >= 10
     const next10AM = isPassed10AM ? new Date(time.getFullYear(), time.getMonth(), time.getDate() + 1, 10, 0, 0) : new Date(time.getFullYear(), time.getMonth(), time.getDate(), 10, 0, 0)
     const timeUntilNext10AM = next10AM.getTime() - time.getTime()
+    const timeUntilNextHour = 60 * 60 * 1000 - (time.getMinutes() * 60 * 1000 + time.getSeconds() * 1000 + time.getMilliseconds())
 
-    setTimeout(setLogger, timeUntilNext10AM)
+    log()
+    setTimeout(setLogger, timeUntilNextHour) //timeUntilNext10AM
 
 
     function setLogger() {
+        setTimeout(setLogger, 60 * 60 * 1000); // Next Hour
         log()
-        setTimeout(log, 4 * 60 * 60 * 1000); // 2 P.M.
-        setTimeout(log, 8 * 60 * 60 * 1000); // 6 P.M.
-        setTimeout(log, 12 * 60 * 60 * 1000); // 10 P.M.
-        setTimeout(setLogger, 24 * 60 * 60 * 1000); // Next Day
+        //setTimeout(log, 4 * 60 * 60 * 1000); // 2 P.M.
+        //setTimeout(log, 8 * 60 * 60 * 1000); // 6 P.M.
+        //setTimeout(log, 12 * 60 * 60 * 1000); // 10 P.M.
+        //setTimeout(setLogger, 24 * 60 * 60 * 1000); // Next Day
     }
     function log(){
-        console.log(new Date().toLocaleString())
+        console.log(`\x1b[31m${new Date().toLocaleString()}`)
         const data = status().data
         for (const symbol of symbols) {
             if (data[symbol]) {
-                console.log(`${symbol}: High - ${data[symbol][`high-${threshold}`]} Price - ${data[symbol].price} `)
+                console.log(`${symbol}: High - ${data[symbol][`high-${threshold}`]} | Price - ${data[symbol].price} `)
             }
         }
     }

@@ -18,9 +18,14 @@ export const dipBuyer = async (params: any, REDBTN: any) => {
         // 4. Check if price is below the threshold
         if (price < high*(1-(params.threshold/100))) {
             REDBTN.data[symbol][`high-${params.threshold}`] = price
-            if (!REDBTN.data[symbol].orders) REDBTN.data[symbol].orders = []
-            REDBTN.data[symbol].orders.push({symbol, price})
-            console.log(`Price for ${symbol} dropped below ${params.threshold}% threshold: ${price}`)
+            if (!REDBTN.data[symbol].orders) REDBTN.data[symbol].orders = {buy: [], sell: []}
+            REDBTN.data[symbol].orders.buy.push({symbol, price})
+            if (params.sell) {
+                REDBTN.data[symbol].orders.sell.push({symbol, price})
+            }
+            console.log(`Price for ${symbol} dropped below ${params.threshold}% threshold`)
+            //!NEEDS CLEANUP/BETTER LOG
+            console.log(`Buy @ ${symbol} at \x1b[32m${price}\x1b[0m ${params.sell ? `and Sell @ \x1b[31m${price*1.01}` : ''}`)
             return price
         }
     }

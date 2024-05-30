@@ -38,14 +38,14 @@ export const updatePrices = async (params: any, REDBTN: any) => {
     return
 }
 
-export const buy = async (params: any, REDBTN: any) => {
+export const trade = async (params: any, REDBTN: any) => {
     if (!params.symbols && !params.symbol) throw new Error('No symbol provided')
     async function main(symbol: string, price: number){
         const order = { 
             symbol: symbol, 
             notional: params.notional || 100, 
-            limit_price: price.toFixed(2), 
-            side: 'buy', 
+            limit_price: (price*(params.priceMulti||1)).toFixed(2), 
+            side: params.side || 'buy', 
             time_in_force: 'day', 
             type: 'limit'
         }
@@ -55,15 +55,15 @@ export const buy = async (params: any, REDBTN: any) => {
     if (params.symbols) {
         let results: any[] = []
         for await (const symbol of params.symbols) {
-            if (REDBTN.data[symbol].orders && REDBTN.data[symbol].orders.length > 0) {
+            if (!REDBTN.data[symbol].orders) return
+            const orders = REDBTN.data[symbol].orders[params.side || 'buy']
+            if (orders.length > 0) {
                 let i = 0
-                if (REDBTN.data[symbol].orders && REDBTN.data[symbol].orders.length > 0) {
-                    for await (const order of REDBTN.data[symbol].orders) {
+                    for await (const order of orders) {
                         results.push(await main(order.symbol, order.price))
-                        REDBTN.data[symbol].orders.splice(i, 1)
+                        orders.splice(i, 1)
                         i++
                     }
-                }
             }
         }
         return results

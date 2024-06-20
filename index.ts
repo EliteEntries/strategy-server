@@ -2,8 +2,10 @@ import { add, finish, set, status } from "redbtn";
 import { createClient } from "redis";
 import 'dotenv/config'
 
-const symbols = ['WMT','META','MSFT','GOOGL','LLY','CMG','NVDA','IIPR','UBER', 'ARES']
-const threshold = 2
+const symbols5 = ['WMT','LLY','CMG','IIPR','UBER', 'ARES', 'V']
+const symbols2 = ['META','MSFT','GOOGL','NVDA', 'MDB']
+const threshold5 = 5
+const threshold2 = 2
 
 const redis = createClient({
     url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_URL}`
@@ -24,7 +26,7 @@ const redis = createClient({
         redis.set('dipbuyer', JSON.stringify(redbtn.data))
     })
 
-    const dipbuyer = await add({
+    const dipbuyer2 = await add({
         name: 'dipbuyer',
         loaders: [{
             package: './dist/connectors/elite-entries',
@@ -34,9 +36,9 @@ const redis = createClient({
             package: './dist/connectors/strategies',
             action: 'dipBuyer',
             params: {
-                symbols: symbols,
-                threshold: threshold,
-                sell: true
+                symbols: symbols2,
+                threshold: threshold2,
+                sell: false
             }
         }],
         actions: [{
@@ -45,7 +47,7 @@ const redis = createClient({
             condition: 't',
             params: {
                 notional: 100,
-                symbols: symbols,
+                symbols: symbols2,
             }
         },{
             package: './dist/connectors/elite-entries',
@@ -53,7 +55,43 @@ const redis = createClient({
             condition: 't',
             params: {
                 notional: 50,
-                symbols: symbols,
+                symbols: symbols2,
+                side: 'sell',
+                priceMulti: 1.01
+            }
+        }],
+    })
+
+    const dipbuyer5 = await add({
+        name: 'dipbuyer',
+        loaders: [{
+            package: './dist/connectors/elite-entries',
+            action: 'updatePrices',
+        }],
+        triggers: [{
+            package: './dist/connectors/strategies',
+            action: 'dipBuyer',
+            params: {
+                symbols: symbols5,
+                threshold: threshold5,
+                sell: false
+            }
+        }],
+        actions: [{
+            package: './dist/connectors/elite-entries',
+            action: 'trade',
+            condition: 't',
+            params: {
+                notional: 100,
+                symbols: symbols5,
+            }
+        },{
+            package: './dist/connectors/elite-entries',
+            action: 'trade',
+            condition: 't',
+            params: {
+                notional: 50,
+                symbols: symbols5,
                 side: 'sell',
                 priceMulti: 1.01
             }
@@ -81,9 +119,14 @@ const redis = createClient({
     function log(){
         console.log(`\x1b[31m${new Date().toLocaleString()}`)
         const data = status().data
-        for (const symbol of symbols) {
+        for (const symbol of symbols5) {
             if (data[symbol]) {
-                console.log(`${symbol}: High - ${data[symbol][`high-${threshold}`]} | Price - ${data[symbol].price} `)
+                console.log(`${symbol}: High - ${data[symbol][`high-${threshold5}`]} | Price - ${data[symbol].price} `)
+            }
+        }
+        for (const symbol of symbols2) {
+            if (data[symbol]) {
+                console.log(`${symbol}: High - ${data[symbol][`high-${threshold2}`]} | Price - ${data[symbol].price} `)
             }
         }
     }

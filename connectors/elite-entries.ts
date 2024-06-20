@@ -55,11 +55,15 @@ export const trade = async (params: any, REDBTN: any) => {
     if (params.symbols) {
         let results: any[] = []
         for await (const symbol of params.symbols) {
-            if (!REDBTN.data[symbol].orders) return
+            if (!REDBTN.data[symbol].orders) continue
             const orders = REDBTN.data[symbol].orders[params.side || 'buy']
-            if (orders.length > 0) {
+            if (orders?.length && orders.length > 0) {
                 let i = 0
                     for await (const order of orders) {
+                        const side = params.side || 'buy'
+                        const color = side === 'buy' ? '\x1b[32m' : '\x1b[31m'
+                        const amount = order.notional || order.qty || order.amount || 100
+                        console.log(`${amount} @ ${order.symbol} at ${color}${order.price}\x1b[0m `)
                         results.push(await main(order.symbol, order.price))
                         orders.splice(i, 1)
                         i++

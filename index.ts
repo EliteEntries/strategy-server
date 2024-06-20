@@ -2,8 +2,8 @@ import { add, finish, set, status } from "redbtn";
 import { createClient } from "redis";
 import 'dotenv/config'
 
-const symbols5 = ['WMT','LLY','CMG','IIPR','UBER', 'ARES', 'V']
-const symbols2 = ['META','MSFT','GOOGL','NVDA', 'MDB']
+const symbols2 = ['WMT','LLY','CMG','IIPR','UBER', 'ARES', 'V']
+const symbols5 = ['META','MSFT','GOOGL','NVDA', 'MDB']
 const threshold5 = 5
 const threshold2 = 2
 

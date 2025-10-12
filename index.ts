@@ -2,7 +2,7 @@ import { add, finish, set, status } from "redbtn";
 import { createClient } from "redis";
 import 'dotenv/config'
 
-const symbols2: string[] = ['LIT', 'JPM', 'LLY']
+const symbols2: string[] = ['LIT', 'JPM', 'LLY', 'GDX', 'VISA']
 const symbols5: string[] = ['GOOGL', 'META', 'COST', 'MSFT']
 const threshold5 = 5
 const threshold2 = 2

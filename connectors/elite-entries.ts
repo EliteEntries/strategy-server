@@ -9,6 +9,7 @@ import { getPrices, placeOrder } from 'elite-entries';
 
  //Helpers
 const roundMax5 = (v: number) => Math.round(v * 1e5) / 1e5
+const roundMax2 = (v: number) => Math.round(v * 1e2) / 1e2
 
 export const updatePrices = async (params: any, REDBTN: any) => {
     const automations = REDBTN.automations
@@ -47,8 +48,8 @@ export const trade = async (params: any, REDBTN: any) => {
 
         const order = { 
             symbol: symbol, 
-            quantity: roundMax5((params.notional || 0) / price), 
-            limit_price: roundMax5(price * (params.priceMulti || 1)).toString(), 
+            qty: roundMax5((params.notional || 0) / price), 
+            limit_price: roundMax2(price * (params.priceMulti || 1)).toString(), 
             side: params.side || 'buy', 
             time_in_force: params.time_in_force || 'day', 
             type: 'limit'

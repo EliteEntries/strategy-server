@@ -7,6 +7,9 @@ import { getPrices, placeOrder } from 'elite-entries';
  * 
  **************************************************************************/
 
+ //Helpers
+const roundMax5 = (v: number) => Math.round(v * 1e5) / 1e5
+
 export const updatePrices = async (params: any, REDBTN: any) => {
     const automations = REDBTN.automations
     const symbols:string[] = []
@@ -41,12 +44,13 @@ export const updatePrices = async (params: any, REDBTN: any) => {
 export const trade = async (params: any, REDBTN: any) => {
     if (!params.symbols && !params.symbol) throw new Error('No symbol provided')
     async function main(symbol: string, price: number){
+
         const order = { 
             symbol: symbol, 
-            notional: params.notional || 100, 
-            limit_price: (price*(params.priceMulti||1)).toFixed(2), 
+            quantity: roundMax5((params.notional || 0) / price), 
+            limit_price: roundMax5(price * (params.priceMulti || 1)).toString(), 
             side: params.side || 'buy', 
-            time_in_force: 'day', 
+            time_in_force: params.time_in_force || 'day', 
             type: 'limit'
         }
         const res = await placeOrder({order, paper: process.env.PAPER || false})
@@ -62,7 +66,7 @@ export const trade = async (params: any, REDBTN: any) => {
                     for await (const order of orders) {
                         const side = params.side || 'buy'
                         const color = side === 'buy' ? '\x1b[32m' : '\x1b[31m'
-                        const amount = order.notional || order.qty || order.amount || 100
+                        const amount = roundMax5((params.notional || 0) / order.price) || order.qty || order.amount || 100
                         console.log(`${amount} @ ${order.symbol} at ${color}${order.price}\x1b[0m `)
                         results.push(await main(order.symbol, order.price))
                         orders.splice(i, 1)

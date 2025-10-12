@@ -2,8 +2,8 @@ import { add, finish, set, status } from "redbtn";
 import { createClient } from "redis";
 import 'dotenv/config'
 
-const symbols2 = ['WMT','LLY','CMG','IIPR','UBER', 'ARES', 'V']
-const symbols5 = ['META','MSFT','GOOGL','NVDA', 'MDB']
+const symbols2: string[] = ['LIT', 'JPM', 'LLY']
+const symbols5: string[] = ['GOOGL', 'META', 'COST', 'MSFT']
 const threshold5 = 5
 const threshold2 = 2
 
@@ -38,7 +38,7 @@ const redis = createClient({
             params: {
                 symbols: symbols2,
                 threshold: threshold2,
-                sell: false
+                sell: true
             }
         }],
         actions: [{
@@ -57,7 +57,8 @@ const redis = createClient({
                 notional: 50,
                 symbols: symbols2,
                 side: 'sell',
-                priceMulti: 1.01
+                priceMulti: 1.01,
+                time_in_force: 'day',
             }
         }],
     })
@@ -74,7 +75,7 @@ const redis = createClient({
             params: {
                 symbols: symbols5,
                 threshold: threshold5,
-                sell: false
+                sell: true
             }
         }],
         actions: [{
@@ -93,7 +94,8 @@ const redis = createClient({
                 notional: 50,
                 symbols: symbols5,
                 side: 'sell',
-                priceMulti: 1.01
+                priceMulti: 1.01,
+                time_in_force: 'day',
             }
         }],
     })

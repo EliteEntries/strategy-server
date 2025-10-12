@@ -1,41 +1,43 @@
+import { sendDiscordMessage } from '../lib/discord';
+
+const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID || ''; // Set this in your .env
 
 export const dipBuyer = async (params: any, REDBTN: any) => {
     async function main(symbol: string){
-        // 1. Check if symbol exists in REDBTN.data
-        if (!REDBTN.data[symbol]) REDBTN.data[symbol] = {}
-        // 2. Check if high threshold exists in REDBTN.data
-        if (!REDBTN.data[symbol][`high-${params.threshold}`]) REDBTN.data[symbol][`high-${params.threshold}`] = 0
+        if (!REDBTN.data[symbol]) REDBTN.data[symbol] = {};
+        if (!REDBTN.data[symbol][`high-${params.threshold}`]) REDBTN.data[symbol][`high-${params.threshold}`] = 0;
     
-        let high = REDBTN.data[symbol][`high-${params.threshold}`]
-        let price = REDBTN.data[symbol].price
+        let high = REDBTN.data[symbol][`high-${params.threshold}`];
+        let price = REDBTN.data[symbol].price;
         
-        // 3. Check if price is higher than the current high
         if (price > high) {
-            REDBTN.data[symbol][`high-${params.threshold}`] = price
-            return false
+            REDBTN.data[symbol][`high-${params.threshold}`] = price;
+            return false;
         }
         
-        // 4. Check if price is below the threshold
         if (price < high*(1-(params.threshold/100))) {
-            REDBTN.data[symbol][`high-${params.threshold}`] = price
-            if (!REDBTN.data[symbol].orders || !REDBTN.data[symbol].orders.buy) REDBTN.data[symbol].orders = {buy: [], sell: []}
-            REDBTN.data[symbol].orders.buy.push({symbol, price})
+            REDBTN.data[symbol][`high-${params.threshold}`] = price;
+            if (!REDBTN.data[symbol].orders || !REDBTN.data[symbol].orders.buy) REDBTN.data[symbol].orders = {buy: [], sell: []};
+            REDBTN.data[symbol].orders.buy.push({symbol, price});
             if (params.sell) {
-                REDBTN.data[symbol].orders.sell.push({symbol, price})
+                
+                REDBTN.data[symbol].orders.sell.push({symbol, price});
             }
-            console.log(`Price for ${symbol} dropped below ${params.threshold}% threshold`)
-            return price
+            const msg = `Order added: ${symbol} at $${price.toFixed(2)} (threshold ${params.threshold}%)`;
+            sendDiscordMessage(DISCORD_CHANNEL_ID, msg);
+            console.log(`Price for ${symbol} dropped below ${params.threshold}% threshold`);
+            return price;
         }
     }
     if (params.symbols) {
-        let results: any[] = []
+        let results: any[] = [];
         for await (const symbol of params.symbols) {
-            results.push(await main(symbol))
+            results.push(await main(symbol));
         }
-        const allFalse = results.every((r) => r === false)
-        return !allFalse ? results : false
+        const allFalse = results.every((r) => r === false);
+        return !allFalse ? results : false;
     } else if (params.symbol) {
-        return await main(params.symbol)
+        return await main(params.symbol);
     }
-    return false
+    return false;
 }

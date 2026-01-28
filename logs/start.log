@@ -1,0 +1,5 @@
+[2026-01-28T20:47:11.575Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-01-28T20:47:11.585Z] [INFO] Environment: production
+[2026-01-28T20:47:11.585Z] [INFO] Max restarts in window: 10 within 300s
+[2026-01-28T20:47:11.586Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-01-28T20:48:11.644Z] [INFO] Process running stable, reset restart count

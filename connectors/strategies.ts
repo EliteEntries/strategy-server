@@ -41,3 +41,43 @@ export const dipBuyer = async (params: any, REDBTN: any) => {
     }
     return false;
 }
+
+// Sell on the way UP: triggers when price rises above low * (1 + threshold%)
+export const ripSeller = async (params: any, REDBTN: any) => {
+    async function main(symbol: string){
+        if (!REDBTN.data[symbol]) REDBTN.data[symbol] = {};
+        if (!REDBTN.data[symbol][`low-${params.threshold}`]) REDBTN.data[symbol][`low-${params.threshold}`] = Infinity;
+    
+        let low = REDBTN.data[symbol][`low-${params.threshold}`];
+        let price = REDBTN.data[symbol].price;
+        
+        // Track the low
+        if (price < low) {
+            REDBTN.data[symbol][`low-${params.threshold}`] = price;
+            return false;
+        }
+        
+        // Trigger when price rises above low * (1 + threshold%)
+        if (price > low * (1 + (params.threshold / 100))) {
+            REDBTN.data[symbol][`low-${params.threshold}`] = price; // Reset low to current price
+            if (!REDBTN.data[symbol].orders) REDBTN.data[symbol].orders = {buy: [], sell: []};
+            REDBTN.data[symbol].orders.sell.push({symbol, price});
+            const msg = `Rip sell triggered: ${symbol} at $${price.toFixed(2)} (up ${params.threshold}% from low)`;
+            sendDiscordMessage(DISCORD_CHANNEL_ID, msg);
+            console.log(`Price for ${symbol} rose above ${params.threshold}% threshold`);
+            return price;
+        }
+        return false;
+    }
+    if (params.symbols) {
+        let results: any[] = [];
+        for await (const symbol of params.symbols) {
+            results.push(await main(symbol));
+        }
+        const allFalse = results.every((r) => r === false);
+        return !allFalse ? results : false;
+    } else if (params.symbol) {
+        return await main(params.symbol);
+    }
+    return false;
+}

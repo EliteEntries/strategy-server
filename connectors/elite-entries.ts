@@ -1,4 +1,5 @@
 import { getPrices, placeOrder } from 'elite-entries';
+import { logTrade } from '../lib/tradeLogger';
 /***************************************************************************
  *********************** Loader funcionts using redBtn  ********************
  *
@@ -45,16 +46,29 @@ export const updatePrices = async (params: any, REDBTN: any) => {
 export const trade = async (params: any, REDBTN: any) => {
     if (!params.symbols && !params.symbol) throw new Error('No symbol provided')
     async function main(symbol: string, price: number){
-
+        const qty = roundMax5((params.notional || 0) / price);
+        const side = params.side || 'buy';
         const order = { 
             symbol: symbol, 
-            qty: roundMax5((params.notional || 0) / price), 
+            qty: qty, 
             limit_price: roundMax2(price * (params.priceMulti || 1)).toString(), 
-            side: params.side || 'buy', 
+            side: side, 
             time_in_force: params.time_in_force || 'day', 
             type: 'limit'
         }
         const res = await placeOrder({order, paper: process.env.PAPER || false})
+        
+        // Log the trade
+        logTrade({
+            symbol: symbol,
+            side: side,
+            price: price,
+            qty: qty,
+            notional: params.notional || 0,
+            threshold: params.threshold,
+            orderId: res?.id,
+        });
+        
         return res
     }
     if (params.symbols) {

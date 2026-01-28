@@ -4,7 +4,10 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "ts-node index"
+        "start": "tsc && node ./scripts/start.js",
+        "start:simple": "tsc && node dist/index.js",
+        "build": "tsc",
+        "dev": "tsc && node ./scripts/dev-restart.js"
     },
     "author": "",
     "license": "ISC",
@@ -13,11 +16,13 @@
         "discord.js": "^14.21.0",
         "elite-entries": "file:../../modules/elite-entries/elite-entries-0.0.1.tgz",
         "node-cmd": "^5.0.0",
+        "node-schedule": "^2.1.1",
         "redbtn": "file:../../modules/redbtn/redbtn-0.0.1.tgz",
         "redis": "^4.6.14",
         "typescript": "^5.4.5"
     },
     "devDependencies": {
-        "@types/node": "^20.19.8"
+        "@types/node": "^20.19.8",
+        "@types/node-schedule": "^2.1.8"
     }
 }

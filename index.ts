@@ -1,11 +1,17 @@
+import 'dotenv/config';
 import { add, finish, set, status } from "redbtn";
 import { createClient } from "redis";
-import 'dotenv/config'
+import { setSymbolConfig } from "./lib/discord";
 
-const symbols2: string[] = ['LIT', 'JPM', 'LLY', 'GDX', 'VISA']
-const symbols5: string[] = ['GOOGL', 'META', 'COST', 'MSFT']
+const symbols2: string[] = ['JPM', 'INFL', 'VGK','ABNB','MSFT']
+const symbols5: string[] = ['META', 'COST', 'V', 'JPM']
+const symbolsSell: string[] = []
 const threshold5 = 5
 const threshold2 = 2
+const thresholdSell = 2
+
+// Configure Discord bot with symbol info
+setSymbolConfig({ symbols2, symbols5, symbolsSell, threshold2, threshold5, thresholdSell });
 
 const redis = createClient({
     url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_URL}`
@@ -46,7 +52,7 @@ const redis = createClient({
             action: 'trade',
             condition: 't',
             params: {
-                notional: 100,
+                notional: 200,
                 symbols: symbols2,
             }
         },{
@@ -54,7 +60,7 @@ const redis = createClient({
             action: 'trade',
             condition: 't',
             params: {
-                notional: 50,
+                notional: 100,
                 symbols: symbols2,
                 side: 'sell',
                 priceMulti: 1.01,
@@ -83,7 +89,7 @@ const redis = createClient({
             action: 'trade',
             condition: 't',
             params: {
-                notional: 100,
+                notional: 200,
                 symbols: symbols5,
             }
         },{
@@ -91,10 +97,37 @@ const redis = createClient({
             action: 'trade',
             condition: 't',
             params: {
-                notional: 50,
+                notional: 100,
                 symbols: symbols5,
                 side: 'sell',
                 priceMulti: 1.01,
+                time_in_force: 'day',
+            }
+        }],
+    })
+
+    const dipbuyerSell = await add({
+        name: 'dipbuyer',
+        loaders: [{
+            package: './dist/connectors/elite-entries',
+            action: 'updatePrices',
+        }],
+        triggers: [{
+            package: './dist/connectors/strategies',
+            action: 'ripSeller',
+            params: {
+                symbols: symbolsSell,
+                threshold: thresholdSell,
+            }
+        }],
+        actions: [{
+            package: './dist/connectors/elite-entries',
+            action: 'trade',
+            condition: 't',
+            params: {
+                notional: 100,
+                symbols: symbolsSell,
+                side: 'sell',
                 time_in_force: 'day',
             }
         }],

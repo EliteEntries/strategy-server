@@ -212,5 +212,41 @@
     "updates": "Need to get an update from Sunday’s meeting",
     "blockers": "",
     "insights": ""
+  },
+  {
+    "date": "01-29-2026",
+    "threadId": "1466296802671329312",
+    "timestamp": "2026-01-29T22:54:41.896Z",
+    "userId": "962756994148737145",
+    "username": "jaycrownbeats",
+    "displayName": "jaycrownbeats",
+    "tasks": "Keeping up with earnings",
+    "updates": "n/a",
+    "blockers": "n/a",
+    "insights": "msft got hit hard and meta jumped"
+  },
+  {
+    "date": "01-30-2026",
+    "threadId": "1466659190444527833",
+    "timestamp": "2026-01-30T12:11:19.747Z",
+    "userId": "962756994148737145",
+    "username": "jaycrownbeats",
+    "displayName": "jaycrownbeats",
+    "tasks": "Report for WMT/META",
+    "updates": "Crypto , GDX, and SLV are all getting wrecked , expirecing a pullback. not conerned. again we have our process and we will review and update not only our positions but our allocation systemtically. I will say im glad we stopped buying and stuck to only our intial position on SLV or we'd be getting wrecked even further.",
+    "blockers": "n/a",
+    "insights": "Crypto, Crypto , Crypto. I feel like we're driving a car without even being aware of if the back left tire is even on right now"
+  },
+  {
+    "date": "01-31-2026",
+    "threadId": "1466659190444527833",
+    "timestamp": "2026-01-31T17:03:46.718Z",
+    "userId": "306650148291739648",
+    "username": "xiroex",
+    "displayName": "George",
+    "tasks": "Created discord controls for our dipbuyer",
+    "updates": "Thinking of/developing ways to utilize some of what I’ve built to our advantage.",
+    "blockers": "None",
+    "insights": "Did we stop buying SLV too early lol"
   }
 ]

@@ -1,0 +1,22 @@
+{
+  "dipbuyers": {
+    "1": [
+      "VGK",
+      "WMT"
+    ],
+    "2": [
+      "INFL"
+    ],
+    "5": [
+      "META",
+      "COST",
+      "V"
+    ]
+  },
+  "ripsellers": {},
+  "settings": {
+    "defaultNotional": 200,
+    "sellNotional": 100,
+    "sellPriceMulti": 1.01
+  }
+}

@@ -1,17 +1,8 @@
 import 'dotenv/config';
-import { add, finish, set, status } from "redbtn";
+import { finish, set, status } from "redbtn";
 import { createClient } from "redis";
-import { setSymbolConfig } from "./lib/discord";
-
-const symbols2: string[] = ['JPM', 'INFL', 'VGK','ABNB','MSFT']
-const symbols5: string[] = ['META', 'COST', 'V', 'JPM']
-const symbolsSell: string[] = []
-const threshold5 = 5
-const threshold2 = 2
-const thresholdSell = 2
-
-// Configure Discord bot with symbol info
-setSymbolConfig({ symbols2, symbols5, symbolsSell, threshold2, threshold5, thresholdSell });
+import { registerAllDipbuyers, getAllSymbolsByThreshold } from "./lib/dipbuyerManager";
+import './lib/discord'; // Initialize Discord bot
 
 const redis = createClient({
     url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_URL}`
@@ -32,106 +23,11 @@ const redis = createClient({
         redis.set('dipbuyer', JSON.stringify(redbtn.data))
     })
 
-    const dipbuyer2 = await add({
-        name: 'dipbuyer',
-        loaders: [{
-            package: './dist/connectors/elite-entries',
-            action: 'updatePrices',
-        }],
-        triggers: [{
-            package: './dist/connectors/strategies',
-            action: 'dipBuyer',
-            params: {
-                symbols: symbols2,
-                threshold: threshold2,
-                sell: true
-            }
-        }],
-        actions: [{
-            package: './dist/connectors/elite-entries',
-            action: 'trade',
-            condition: 't',
-            params: {
-                notional: 200,
-                symbols: symbols2,
-            }
-        },{
-            package: './dist/connectors/elite-entries',
-            action: 'trade',
-            condition: 't',
-            params: {
-                notional: 100,
-                symbols: symbols2,
-                side: 'sell',
-                priceMulti: 1.01,
-                time_in_force: 'day',
-            }
-        }],
-    })
-
-    const dipbuyer5 = await add({
-        name: 'dipbuyer',
-        loaders: [{
-            package: './dist/connectors/elite-entries',
-            action: 'updatePrices',
-        }],
-        triggers: [{
-            package: './dist/connectors/strategies',
-            action: 'dipBuyer',
-            params: {
-                symbols: symbols5,
-                threshold: threshold5,
-                sell: true
-            }
-        }],
-        actions: [{
-            package: './dist/connectors/elite-entries',
-            action: 'trade',
-            condition: 't',
-            params: {
-                notional: 200,
-                symbols: symbols5,
-            }
-        },{
-            package: './dist/connectors/elite-entries',
-            action: 'trade',
-            condition: 't',
-            params: {
-                notional: 100,
-                symbols: symbols5,
-                side: 'sell',
-                priceMulti: 1.01,
-                time_in_force: 'day',
-            }
-        }],
-    })
-
-    const dipbuyerSell = await add({
-        name: 'dipbuyer',
-        loaders: [{
-            package: './dist/connectors/elite-entries',
-            action: 'updatePrices',
-        }],
-        triggers: [{
-            package: './dist/connectors/strategies',
-            action: 'ripSeller',
-            params: {
-                symbols: symbolsSell,
-                threshold: thresholdSell,
-            }
-        }],
-        actions: [{
-            package: './dist/connectors/elite-entries',
-            action: 'trade',
-            condition: 't',
-            params: {
-                notional: 100,
-                symbols: symbolsSell,
-                side: 'sell',
-                time_in_force: 'day',
-            }
-        }],
-    })
+    // Dynamically register all dipbuyers from JSON config
+    await registerAllDipbuyers();
+    
+    // Get all symbols for logging
+    const symbolsByThreshold = await getAllSymbolsByThreshold();
 
     const time = new Date()
     const isPassed10AM: boolean = time.getHours() >= 10
@@ -146,22 +42,16 @@ const redis = createClient({
     function setLogger() {
         setTimeout(setLogger, 60 * 60 * 1000); // Next Hour
         log()
-        //setTimeout(log, 4 * 60 * 60 * 1000); // 2 P.M.
-        //setTimeout(log, 8 * 60 * 60 * 1000); // 6 P.M.
-        //setTimeout(log, 12 * 60 * 60 * 1000); // 10 P.M.
-        //setTimeout(setLogger, 24 * 60 * 60 * 1000); // Next Day
     }
+    
     function log(){
         console.log(`\x1b[31m${new Date().toLocaleString()}`)
         const data = status().data
-        for (const symbol of symbols5) {
-            if (data[symbol]) {
-                console.log(`${symbol}: High - ${data[symbol][`high-${threshold5}`]} | Price - ${data[symbol].price} `)
-            }
-        }
-        for (const symbol of symbols2) {
-            if (data[symbol]) {
-                console.log(`${symbol}: High - ${data[symbol][`high-${threshold2}`]} | Price - ${data[symbol].price} `)
+        for (const [threshold, symbols] of Object.entries(symbolsByThreshold)) {
+            for (const symbol of symbols as string[]) {
+                if (data[symbol]) {
+                    console.log(`${symbol}: High - ${data[symbol][`high-${threshold}`]} | Price - ${data[symbol].price} `)
+                }
             }
         }
     }

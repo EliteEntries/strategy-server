@@ -1,33 +1,17 @@
-import { Client, GatewayIntentBits, TextChannel, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ModalSubmitInteraction, ThreadChannel } from 'discord.js';
+import { Client, GatewayIntentBits, TextChannel, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ThreadChannel } from 'discord.js';
 import { getTodaysTrades, getYesterdaysTrades, formatTradesForDiscord } from './tradeLogger';
+import { addDipbuyer, removeDipbuyer, listDipbuyers, registerSingleDipbuyer } from './dipbuyerManager';
 import { scheduleJob } from 'node-schedule';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
-// Symbol configuration - can be updated from index.ts
-let symbols2: string[] = [];
-let symbols5: string[] = [];
-let symbolsSell: string[] = [];
-let threshold2 = 2;
-let threshold5 = 5;
-let thresholdSell = 2;
-
-export function setSymbolConfig(config: { symbols2: string[], symbols5: string[], symbolsSell?: string[], threshold2: number, threshold5: number, thresholdSell?: number }) {
-    symbols2 = config.symbols2;
-    symbols5 = config.symbols5;
-    symbolsSell = config.symbolsSell || [];
-    threshold2 = config.threshold2;
-    threshold5 = config.threshold5;
-    thresholdSell = config.thresholdSell ?? 2;
-}
-
 // Register slash commands
 const commands = [
     new SlashCommandBuilder()
         .setName('info')
-        .setDescription('Get current dip buyer configuration'),
+        .setDescription('Get system info: today\'s stats and dipbuyer configuration'),
     new SlashCommandBuilder()
         .setName('day')
         .setDescription('Show trades placed today'),
@@ -37,6 +21,28 @@ const commands = [
     new SlashCommandBuilder()
         .setName('test-standup')
         .setDescription('Test the daily standup message (sends to test channel)'),
+    new SlashCommandBuilder()
+        .setName('add')
+        .setDescription('Add a symbol to a dipbuyer threshold')
+        .addStringOption(option =>
+            option.setName('symbol')
+                .setDescription('The stock symbol (e.g., AAPL)')
+                .setRequired(true))
+        .addNumberOption(option =>
+            option.setName('threshold')
+                .setDescription('The dip percentage threshold (e.g., 2 for 2%)')
+                .setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('remove')
+        .setDescription('Remove a symbol from a dipbuyer threshold')
+        .addStringOption(option =>
+            option.setName('symbol')
+                .setDescription('The stock symbol (e.g., AAPL)')
+                .setRequired(true))
+        .addNumberOption(option =>
+            option.setName('threshold')
+                .setDescription('The dip percentage threshold (e.g., 2 for 2%)')
+                .setRequired(true)),
 ].map(command => command.toJSON());
 
 async function registerCommands() {
@@ -222,17 +228,24 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.commandName === 'info') {
-        const message = [
-            '**Dip Buyer Configuration**',
+        const trades = getTodaysTrades();
+        const buyTrades = trades.filter(t => t.side === 'buy');
+        const sellTrades = trades.filter(t => t.side === 'sell');
+        const totalBuyNotional = buyTrades.reduce((sum, t) => sum + t.notional, 0);
+        const totalSellNotional = sellTrades.reduce((sum, t) => sum + t.notional, 0);
+        
+        const config = await listDipbuyers();
+        
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const statsSection = [
+            `**📈 Today's Activity (${today})**`,
+            trades.length > 0 
+                ? `${trades.length} trades • 🟢 ${buyTrades.length} buys ($${totalBuyNotional.toFixed(0)}) • 🔴 ${sellTrades.length} sells ($${totalSellNotional.toFixed(0)})`
+                : 'No trades yet today',
             '',
-            `**${threshold2}% Buyer Symbols:**`,
-            symbols2.length > 0 ? symbols2.join(', ') : 'None configured',
-            '',
-            `**${threshold5}% Buyer Symbols:**`,
-            symbols5.length > 0 ? symbols5.join(', ') : 'None configured',
         ].join('\n');
-
-        await interaction.reply(message);
+        
+        await interaction.reply(statsSection + config);
     }
 
     if (interaction.commandName === 'day') {
@@ -270,6 +283,36 @@ client.on('interactionCreate', async (interaction) => {
 
         await sendDailyStandupMessage(testChannelId, message);
         await interaction.reply({ content: '✅ Test standup message sent to test channel!', ephemeral: true });
+    }
+
+    if (interaction.commandName === 'add') {
+        const symbol = interaction.options.getString('symbol', true);
+        const threshold = interaction.options.getNumber('threshold', true);
+        
+        const result = await addDipbuyer(symbol, threshold);
+        
+        if (result.success) {
+            // If this created a new threshold, register it with redbtn
+            if (result.isNew) {
+                await registerSingleDipbuyer(threshold);
+            }
+            await interaction.reply(`✅ ${result.message}`);
+        } else {
+            await interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+        }
+    }
+
+    if (interaction.commandName === 'remove') {
+        const symbol = interaction.options.getString('symbol', true);
+        const threshold = interaction.options.getNumber('threshold', true);
+        
+        const result = await removeDipbuyer(symbol, threshold);
+        
+        if (result.success) {
+            await interaction.reply(`✅ ${result.message}`);
+        } else {
+            await interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+        }
     }
 });
 

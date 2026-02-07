@@ -1,5 +1,6 @@
 import { getPrices, placeOrder } from 'elite-entries';
 import { logTrade } from '../lib/tradeLogger';
+import { getSymbolsForThreshold } from '../lib/dipbuyerManager';
 /***************************************************************************
  *********************** Loader funcionts using redBtn  ********************
  *
@@ -13,21 +14,14 @@ const roundMax5 = (v: number) => Math.round(v * 1e5) / 1e5
 const roundMax2 = (v: number) => Math.round(v * 1e2) / 1e2
 
 export const updatePrices = async (params: any, REDBTN: any) => {
-    const automations = REDBTN.automations
-    const symbols:string[] = []
-
-    // 1. Check algorithm params for symbols
-    for await (const automation of Object.keys(automations)) {
-        const triggers = automations[automation].triggers
-        for await (const trigger of triggers) {
-            const params = trigger.params
-            if (params.symbol && !symbols.includes(params.symbol)) {
-                symbols.push(params.symbol)
-            } else if (params.symbols) {
-                for await (const symbol of params.symbols) {
-                    if (!symbols.includes(symbol)) symbols.push(symbol)
-                }
-            }
+    // Dynamically load all symbols from JSON config
+    const { getAllSymbolsByThreshold } = await import('../lib/dipbuyerManager');
+    const symbolsByThreshold = await getAllSymbolsByThreshold();
+    const symbols: string[] = [];
+    
+    for (const thresholdSymbols of Object.values(symbolsByThreshold)) {
+        for (const symbol of thresholdSymbols) {
+            if (!symbols.includes(symbol)) symbols.push(symbol);
         }
     }
     
@@ -44,7 +38,13 @@ export const updatePrices = async (params: any, REDBTN: any) => {
 }
 
 export const trade = async (params: any, REDBTN: any) => {
-    if (!params.symbols && !params.symbol) throw new Error('No symbol provided')
+    // Dynamically load symbols from JSON config
+    let symbols: string[] | undefined;
+    if (params.threshold) {
+        symbols = await getSymbolsForThreshold(params.threshold);
+        if (symbols.length === 0) symbols = undefined;
+    }
+    if (!symbols && !params.symbol) throw new Error('No symbol provided')
     async function main(symbol: string, price: number){
         const qty = roundMax5((params.notional || 0) / price);
         const side = params.side || 'buy';
@@ -71,9 +71,9 @@ export const trade = async (params: any, REDBTN: any) => {
         
         return res
     }
-    if (params.symbols) {
+    if (symbols) {
         let results: any[] = []
-        for await (const symbol of params.symbols) {
+        for await (const symbol of symbols) {
             if (!REDBTN.data[symbol].orders) continue
             const orders = REDBTN.data[symbol].orders[params.side || 'buy']
             if (orders?.length && orders.length > 0) {

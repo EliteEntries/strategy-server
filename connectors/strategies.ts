@@ -1,8 +1,11 @@
 import { sendDiscordMessage } from '../lib/discord';
+import { getSymbolsForThreshold } from '../lib/dipbuyerManager';
 
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID || ''; // Set this in your .env
 
 export const dipBuyer = async (params: any, REDBTN: any) => {
+    // Dynamically load symbols from JSON config on each run
+    const symbols = await getSymbolsForThreshold(params.threshold);
     async function main(symbol: string){
         if (!REDBTN.data[symbol]) REDBTN.data[symbol] = {};
         if (!REDBTN.data[symbol][`high-${params.threshold}`]) REDBTN.data[symbol][`high-${params.threshold}`] = 0;
@@ -29,9 +32,9 @@ export const dipBuyer = async (params: any, REDBTN: any) => {
             return price;
         }
     }
-    if (params.symbols) {
+    if (symbols.length > 0) {
         let results: any[] = [];
-        for await (const symbol of params.symbols) {
+        for await (const symbol of symbols) {
             results.push(await main(symbol));
         }
         const allFalse = results.every((r) => r === false);
@@ -44,6 +47,8 @@ export const dipBuyer = async (params: any, REDBTN: any) => {
 
 // Sell on the way UP: triggers when price rises above low * (1 + threshold%)
 export const ripSeller = async (params: any, REDBTN: any) => {
+    // Dynamically load symbols from JSON config on each run
+    const symbols = await getSymbolsForThreshold(params.threshold);
     async function main(symbol: string){
         if (!REDBTN.data[symbol]) REDBTN.data[symbol] = {};
         if (!REDBTN.data[symbol][`low-${params.threshold}`]) REDBTN.data[symbol][`low-${params.threshold}`] = Infinity;
@@ -69,9 +74,9 @@ export const ripSeller = async (params: any, REDBTN: any) => {
         }
         return false;
     }
-    if (params.symbols) {
+    if (symbols.length > 0) {
         let results: any[] = [];
-        for await (const symbol of params.symbols) {
+        for await (const symbol of symbols) {
             results.push(await main(symbol));
         }
         const allFalse = results.every((r) => r === false);

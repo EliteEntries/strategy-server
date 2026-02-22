@@ -1,14 +1,12 @@
 {
   "dipbuyers": {
     "1": [
-      "VGK",
-      "WMT"
+      "VGK"
     ],
     "2": [
       "INFL"
     ],
     "5": [
-      "META",
       "COST",
       "V"
     ]

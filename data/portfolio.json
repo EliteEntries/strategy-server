@@ -1,0 +1,32 @@
+{
+  "tiers": {
+    "CC": {
+      "name": "Core Compounders",
+      "emoji": "🥇",
+      "targetRange": [40, 60],
+      "perName": [4, 7],
+      "hardCap": 10,
+      "symbols": ["GOOGL", "JPM", "MSFT", "META", "V", "WMT"]
+    },
+    "HG": {
+      "name": "High-Conviction Growth",
+      "emoji": "🥈",
+      "targetRange": [25, 40],
+      "perName": [1.5, 4],
+      "hardCap": 5,
+      "symbols": ["LLY", "NVDA", "UBER", "ABNB", "HOOD", "MDB", "ARES", "COST", "ZTS", "DIS", "PYPL"]
+    },
+    "OT": {
+      "name": "Options / Thematics",
+      "emoji": "🥉",
+      "targetRange": [5, 15],
+      "perName": [0.25, 1.5],
+      "hardCap": 2,
+      "symbols": ["LIT", "NFLX", "DKNG", "IIPR", "CMG"]
+    }
+  },
+  "firebase": {
+    "collection": "progressionfund",
+    "document": "alpaca"
+  }
+}

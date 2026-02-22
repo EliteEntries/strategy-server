@@ -15,6 +15,7 @@
     "dependencies": {
         "discord.js": "^14.21.0",
         "elite-entries": "file:../../modules/elite-entries/elite-entries-0.0.1.tgz",
+        "firebase-admin": "^13.6.1",
         "node-cmd": "^5.0.0",
         "node-schedule": "^2.1.1",
         "redbtn": "file:../../modules/redbtn/redbtn-0.0.1.tgz",

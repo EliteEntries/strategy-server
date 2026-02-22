@@ -1,6 +1,8 @@
 import { Client, GatewayIntentBits, TextChannel, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ThreadChannel } from 'discord.js';
 import { getTodaysTrades, getYesterdaysTrades, formatTradesForDiscord } from './tradeLogger';
 import { addDipbuyer, removeDipbuyer, listDipbuyers, registerSingleDipbuyer } from './dipbuyerManager';
+import { analyzePortfolio } from './portfolioAnalyzer';
+import { getSymbolsYTD, getFundYTD } from './ytdAnalyzer';
 import { scheduleJob } from 'node-schedule';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -43,6 +45,16 @@ const commands = [
             option.setName('threshold')
                 .setDescription('The dip percentage threshold (e.g., 2 for 2%)')
                 .setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('portfolio')
+        .setDescription('Analyze portfolio positions against tier rules and caps'),
+    new SlashCommandBuilder()
+        .setName('ytd')
+        .setDescription('Year-to-date performance for the fund or specific symbols')
+        .addStringOption(option =>
+            option.setName('symbols')
+                .setDescription('Optional: symbols separated by spaces (e.g., AAPL GOOGL META)')
+                .setRequired(false)),
 ].map(command => command.toJSON());
 
 async function registerCommands() {
@@ -312,6 +324,85 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.reply(`✅ ${result.message}`);
         } else {
             await interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+        }
+    }
+
+    if (interaction.commandName === 'portfolio') {
+        await interaction.deferReply(); // Firebase call may take a moment
+        try {
+            const analysis = await analyzePortfolio();
+            // Discord has a 2000 char limit per message
+            if (analysis.length <= 2000) {
+                await interaction.editReply(analysis);
+            } else {
+                // Split into chunks at line breaks
+                const chunks: string[] = [];
+                let current = '';
+                for (const line of analysis.split('\n')) {
+                    if ((current + '\n' + line).length > 1950) {
+                        chunks.push(current);
+                        current = line;
+                    } else {
+                        current += (current ? '\n' : '') + line;
+                    }
+                }
+                if (current) chunks.push(current);
+                
+                await interaction.editReply(chunks[0]);
+                const channel = interaction.channel;
+                if (channel && 'send' in channel) {
+                    for (let i = 1; i < chunks.length; i++) {
+                        await (channel as TextChannel).send(chunks[i]);
+                    }
+                }
+            }
+        } catch (error: any) {
+            console.error('Portfolio analysis error:', error);
+            await interaction.editReply(`❌ Error analyzing portfolio: ${error.message}`);
+        }
+    }
+
+    if (interaction.commandName === 'ytd') {
+        await interaction.deferReply();
+        try {
+            const symbolsInput = interaction.options.getString('symbols');
+            let result: string;
+
+            if (symbolsInput) {
+                // Parse space-separated symbols
+                const symbols = symbolsInput.trim().split(/[\s,]+/).filter(s => s.length > 0);
+                result = await getSymbolsYTD(symbols);
+            } else {
+                result = await getFundYTD();
+            }
+
+            // Handle Discord 2000 char limit
+            if (result.length <= 2000) {
+                await interaction.editReply(result);
+            } else {
+                const chunks: string[] = [];
+                let current = '';
+                for (const line of result.split('\n')) {
+                    if ((current + '\n' + line).length > 1950) {
+                        chunks.push(current);
+                        current = line;
+                    } else {
+                        current += (current ? '\n' : '') + line;
+                    }
+                }
+                if (current) chunks.push(current);
+
+                await interaction.editReply(chunks[0]);
+                const channel = interaction.channel;
+                if (channel && 'send' in channel) {
+                    for (let i = 1; i < chunks.length; i++) {
+                        await (channel as TextChannel).send(chunks[i]);
+                    }
+                }
+            }
+        } catch (error: any) {
+            console.error('YTD analysis error:', error);
+            await interaction.editReply(`❌ Error fetching YTD data: ${error.message}`);
         }
     }
 });

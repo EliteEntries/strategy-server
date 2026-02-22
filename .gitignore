@@ -11,6 +11,7 @@
 
 # keys
 *elitefirebase.json
+*firebase-adminsdk*
 
 # misc
 .DS_Store

@@ -86,3 +86,75 @@
 [2026-02-06T23:27:57.186Z] [INFO] Max restarts in window: 10 within 300s
 [2026-02-06T23:27:57.187Z] [INFO] Starting server: node dist/index.js (restart count: 0)
 [2026-02-06T23:28:57.231Z] [INFO] Process running stable, reset restart count
+[2026-02-09T18:42:38.953Z] [INFO] Received SIGINT
+[2026-02-09T18:42:38.962Z] [INFO] Initiating graceful shutdown...
+[2026-02-09T18:42:38.964Z] [INFO] Sending SIGTERM to child process...
+[2026-02-09T18:42:38.977Z] [INFO] Process exited during shutdown
+[2026-02-09T18:45:44.886Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-09T18:45:44.895Z] [INFO] Environment: production
+[2026-02-09T18:45:44.895Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-09T18:45:44.896Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-09T18:46:44.954Z] [INFO] Process running stable, reset restart count
+[2026-02-09T18:50:35.787Z] [INFO] Received SIGINT
+[2026-02-09T18:50:35.790Z] [INFO] Initiating graceful shutdown...
+[2026-02-09T18:50:35.791Z] [INFO] Sending SIGTERM to child process...
+[2026-02-09T18:50:35.801Z] [INFO] Process exited during shutdown
+[2026-02-09T18:51:17.812Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-09T18:51:17.821Z] [INFO] Environment: production
+[2026-02-09T18:51:17.821Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-09T18:51:17.822Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-09T18:52:17.861Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:11:07.626Z] [INFO] Received SIGINT
+[2026-02-16T19:11:07.637Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:11:07.639Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:11:07.649Z] [INFO] Process exited during shutdown
+[2026-02-16T19:11:50.210Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:11:50.219Z] [INFO] Environment: production
+[2026-02-16T19:11:50.220Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:11:50.220Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:12:50.255Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:16:42.309Z] [INFO] Received SIGINT
+[2026-02-16T19:16:42.311Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:16:42.312Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:16:42.322Z] [INFO] Process exited during shutdown
+[2026-02-16T19:17:44.273Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:17:44.280Z] [INFO] Environment: production
+[2026-02-16T19:17:44.280Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:17:44.281Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:18:44.335Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:24:41.220Z] [INFO] Received SIGINT
+[2026-02-16T19:24:41.221Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:24:41.222Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:24:41.233Z] [INFO] Process exited during shutdown
+[2026-02-16T19:25:27.907Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:25:27.916Z] [INFO] Environment: production
+[2026-02-16T19:25:27.917Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:25:27.917Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:26:27.933Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:33:19.279Z] [INFO] Received SIGINT
+[2026-02-16T19:33:19.280Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:33:19.282Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:33:19.293Z] [INFO] Process exited during shutdown
+[2026-02-16T19:33:59.697Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:33:59.704Z] [INFO] Environment: production
+[2026-02-16T19:33:59.704Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:33:59.705Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:34:59.755Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:38:00.691Z] [INFO] Received SIGINT
+[2026-02-16T19:38:00.692Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:38:00.693Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:38:00.709Z] [INFO] Process exited during shutdown
+[2026-02-16T19:38:43.762Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:38:43.772Z] [INFO] Environment: production
+[2026-02-16T19:38:43.772Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:38:43.773Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:39:43.831Z] [INFO] Process running stable, reset restart count
+[2026-02-16T19:42:21.476Z] [INFO] Received SIGINT
+[2026-02-16T19:42:21.477Z] [INFO] Initiating graceful shutdown...
+[2026-02-16T19:42:21.478Z] [INFO] Sending SIGTERM to child process...
+[2026-02-16T19:42:21.492Z] [INFO] Process exited during shutdown
+[2026-02-16T19:43:17.865Z] [INFO] === Strategy Server Supervisor Starting ===
+[2026-02-16T19:43:17.872Z] [INFO] Environment: production
+[2026-02-16T19:43:17.875Z] [INFO] Max restarts in window: 10 within 300s
+[2026-02-16T19:43:17.875Z] [INFO] Starting server: node dist/index.js (restart count: 0)
+[2026-02-16T19:44:17.895Z] [INFO] Process running stable, reset restart count
